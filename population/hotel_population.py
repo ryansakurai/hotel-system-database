@@ -29,7 +29,7 @@ for name in NAMES:
         qt_stars = random.randint(1, 5)
         try:
             cursor.execute("BEGIN;")
-            cursor.execute(f"insert into hotel (\"name\", \"address\", email, website, qt_stars) values ('{name}', '{street}, {number}','{email}','{website}', {qt_stars})")
+            cursor.execute(f"INSERT INTO hotel (\"name\", \"address\", email, website, qt_stars) values ('{name}', '{street}, {number}','{email}','{website}', {qt_stars})")
             cursor.execute("COMMIT;")
             conn.commit()
             address_counter += 1

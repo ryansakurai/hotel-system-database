@@ -10,9 +10,9 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
-cursor.execute(f"select * from room ")
+cursor.execute(f"SELECT * FROM room ")
 ROOMS = cursor.fetchall()
-cursor.execute(f"select * from guest")
+cursor.execute(f"SELECT * FROM guest")
 GUESTS = cursor.fetchall()
 
 # first day = some day between 2020/01/01 and 2023/07/05
@@ -31,7 +31,7 @@ while id < 10000000:
         last_day = first_day + timedelta(days=random.randint(0, 5))
 
         cursor.execute("BEGIN;")
-        cursor.execute(f"insert into reservation values ({id},'{guest[0]}','{room[0]}', '{room[1]}', {room[2]}, {room[3]}, '{first_day}', '{last_day}')")
+        cursor.execute(f"INSERT INTO reservation VALUES ({id},'{guest[0]}','{room[0]}', '{room[1]}', {room[2]}, {room[3]}, '{first_day}', '{last_day}')")
         cursor.execute("COMMIT;")
         conn.commit()
         

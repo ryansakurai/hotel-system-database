@@ -26,7 +26,7 @@ PRICE_RANGES = {
     }
 }
 
-cursor.execute(f"select * from hotel")
+cursor.execute(f"SELECT * FROM hotel")
 hotels = cursor.fetchall()
 
 # daily rate = number between lower and upper limit * qt_stars
@@ -40,7 +40,7 @@ for hotel in hotels:
                 room_type = random.choice(TYPES)
                 daily_rate = random.randint(PRICE_RANGES[room_type]["LOWER_LIMIT"], PRICE_RANGES[room_type]["UPPER_LIMIT"]) * hotel[-1]
                 cursor.execute("BEGIN;")
-                cursor.execute(f"insert into room values ('{hotel[0]}','{hotel[1]}', {floor}, {number}, {daily_rate}, '{room_type}')")
+                cursor.execute(f"INSERT INTO room VALUES ('{hotel[0]}','{hotel[1]}', {floor}, {number}, {daily_rate}, '{room_type}')")
                 cursor.execute("COMMIT;")
                 conn.commit()
             except psycopg2.Error as e:

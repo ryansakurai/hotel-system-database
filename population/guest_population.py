@@ -46,7 +46,7 @@ while guest_count <= DESIRED_QT_GUESTS:
         phone_number = f'{random.choice(AREA_CODE)} 9{random.randint(10000000, 99999999)}'
         email = f'{first_name.lower()}.{(last_name.split())[-1].lower()}{random.randint(0, 99)}@{random.choice(DOMAIN)}.com'
         cursor.execute("BEGIN;")
-        cursor.execute(f"insert into guest values ('{cpf}', '{name}', '{phone_number}', '{email}')")
+        cursor.execute(f"INSERT INTO guest VALUES ('{cpf}', '{name}', '{phone_number}', '{email}')")
         cursor.execute("COMMIT;")
         conn.commit()
         guest_count += 1
