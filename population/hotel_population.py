@@ -34,4 +34,4 @@ for name in NAMES:
             conn.commit()
             address_counter += 1
         except psycopg2.Error as e:
-            continue
+            conn.rollback()

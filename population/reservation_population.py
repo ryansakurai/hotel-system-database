@@ -37,6 +37,5 @@ while id < 10000000:
         
         id += 1
     except psycopg2.Error as e:
-        print(id)
         print(e)
         conn.rollback()

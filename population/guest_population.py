@@ -51,4 +51,4 @@ while guest_count <= DESIRED_QT_GUESTS:
         conn.commit()
         guest_count += 1
     except psycopg2.Error as e:
-        continue
+        conn.rollback()
