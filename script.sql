@@ -1,48 +1,48 @@
 -- DDL
-CREATE TABLE hospede (
-    cpf CHAR(14),
-    nome VARCHAR(255),
-    telefone VARCHAR(20) UNIQUE,
+CREATE TABLE guest (
+    cpf CHAR(14), -- Brazil's Taxpayer Registry for Individuals
+    "name" VARCHAR(255),
+    phone_number VARCHAR(20) UNIQUE,
     email VARCHAR(255) UNIQUE,
 
     PRIMARY KEY (cpf)
 );
 
 CREATE TABLE hotel (
-    nome VARCHAR(255),
-    endereco VARCHAR(255),
+    "name" VARCHAR(255),
+    "address" VARCHAR(255),
     email VARCHAR(255) CHECK (email LIKE '%@%.com'),
     website VARCHAR(255) CHECK (website LIKE 'www.%.com.br'),
-    estrelas INT NOT NULL CHECK (estrelas>=1 AND estrelas<=5),
+    qt_stars INT NOT NULL CHECK (qt_stars>=1 AND qt_stars<=5),
 
-    PRIMARY KEY (nome, endereco)
+    PRIMARY KEY ("name", "address")
 );
 
-CREATE TABLE quarto (
-    hotel_nome VARCHAR(255),
-    hotel_endereco VARCHAR(255),
-    andar INT,
-    numero INT,
-    diaria money NOT NULL,
-    tipo VARCHAR(14) CHECK (tipo IN ('Solteiro', 'Duplo Solteiro', 'Casal')),
+CREATE TABLE room (
+    hotel_name VARCHAR(255),
+    hotel_address VARCHAR(255),
+    floor INT,
+    "number" INT,
+    daily_rate money NOT NULL,
+    "type" VARCHAR(14) CHECK ("type" IN ('Single', 'Double Single', 'Couple')),
 
-    PRIMARY KEY (hotel_nome, hotel_endereco, andar, numero),
-    FOREIGN KEY (hotel_nome, hotel_endereco) REFERENCES hotel (nome, endereco) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (hotel_name, hotel_address, floor, "number"),
+    FOREIGN KEY (hotel_name, hotel_address) REFERENCES hotel ("name", "address") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE reserva (
+CREATE TABLE reservation (
     id INT,
-    hospede_cpf VARCHAR(14),
-    hotel_nome VARCHAR(255),
-    hotel_endereco VARCHAR(255),
-    quarto_andar INT,
-    quarto_numero INT,
-    entrada DATE,
-    saida DATE,
+    guest_cpf VARCHAR(14),
+    hotel_name VARCHAR(255),
+    hotel_address VARCHAR(255),
+    room_floor INT,
+    room_number INT,
+    first_day DATE,
+    last_day DATE,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (hospede_cpf) REFERENCES hospede (cpf) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (hotel_nome, hotel_endereco, quarto_andar, quarto_numero) REFERENCES quarto (hotel_nome, hotel_endereco, andar, numero) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (guest_cpf) REFERENCES guest (cpf) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (hotel_name, hotel_address, room_floor, room_number) REFERENCES room (hotel_name, hotel_address, floor, "number") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -52,18 +52,15 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (
         SELECT 1
-        FROM reserva r
-        WHERE r.hotel_nome = NEW.hotel_nome
-            AND r.hotel_endereco = NEW.hotel_endereco
-            AND r.quarto_andar = NEW.quarto_andar
-            AND r.quarto_numero = NEW.quarto_numero
-            AND CASE
-                    WHEN NEW.entrada BETWEEN r.entrada AND r.saida THEN TRUE
-                    WHEN NEW.saida BETWEEN r.entrada AND r.saida THEN TRUE
-                    ELSE FALSE
-                END
+        FROM reservation r
+        WHERE r.hotel_name = NEW.hotel_name
+            AND r.hotel_address = NEW.hotel_address
+            AND r.room_floor = NEW.room_floor
+            AND r.room_number = NEW.room_number
+            AND (NEW.first_day BETWEEN r.first_day AND r.last_day
+                OR NEW.last_day BETWEEN r.first_day AND r.last_day)
     ) THEN
-        RAISE EXCEPTION 'Conflito com outra reserva!';
+        RAISE EXCEPTION 'There''s a conflict with another reservation!';
     END IF;
 
     RETURN NEW;
@@ -71,10 +68,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER check_availability
-BEFORE INSERT ON reserva
+BEFORE INSERT ON reservation
 FOR EACH ROW
 EXECUTE FUNCTION check_availability();
 
 
 -- ÍNDICES
-CREATE INDEX ON hotel (estrelas);
+CREATE INDEX ON hotel (qt_stars);
